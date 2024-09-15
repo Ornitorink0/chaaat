@@ -1,6 +1,6 @@
 // app\main.js
 
-const socket = io("ws://62.240.135.14:8080", {
+const socket = io("ws://localhost:8080", {
   reconnectionAttempts: 5, // Tentativi di riconnessione
   reconnectionDelay: 1000, // 1 secondo tra ogni tentativo
   timeout: 20000, // Timeout per la connessione

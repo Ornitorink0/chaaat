@@ -1,6 +1,6 @@
 // server\index.js
 
-const PORT = process.env.PORT || 5173;
+const PORT = process.env.PORT || 8080;
 
 const http = require('http').createServer();
 const io = require('socket.io')(http, { cors: { origin: "*" } });
@@ -27,6 +27,6 @@ io.on('connection', (socket) => {
     });
 });
 
-http.listen(PORT, () => {
-    console.log('listening on: ${PORT}');
+http.listen(8080, () => {
+    console.log('listening on: 8080');
 });
