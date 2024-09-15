@@ -1,5 +1,3 @@
-// server\index.js
-
 const PORT = process.env.PORT || 8080;
 
 const crypto = require('crypto');
@@ -7,11 +5,11 @@ const http = require('http').createServer();
 const io = require('socket.io')(http, { cors: { origin: "*" } });
 
 const algorithm = 'aes-256-cbc';
-const key = crypto.randomBytes(32);
-const iv = crypto.randomBytes(16);
+const key = crypto.randomBytes(32); // Chiave segreta, dovrebbe essere condivisa in modo sicuro
 
 function encrypt(text) {
-    let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+    const iv = crypto.randomBytes(16); // Genera un IV nuovo per ogni crittografia
+    let cipher = crypto.createCipheriv(algorithm, key, iv);
     let encrypted = cipher.update(text);
     encrypted = Buffer.concat([encrypted, cipher.final()]);
     return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
@@ -20,7 +18,7 @@ function encrypt(text) {
 function decrypt(encryptedText, ivHex) {
     let ivBuffer = Buffer.from(ivHex, 'hex');
     let encryptedBuffer = Buffer.from(encryptedText, 'hex');
-    let decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), ivBuffer);
+    let decipher = crypto.createDecipheriv(algorithm, key, ivBuffer);
     let decrypted = decipher.update(encryptedBuffer);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
@@ -30,7 +28,6 @@ io.on('connection', (socket) => {
     fetch("https://api.ipify.org?format=json")
         .then(response => response.json())
         .then(data => {
-            // Display the IP address
             console.log(data.ip + " is connected");
         })
         .catch(error => {
@@ -41,6 +38,7 @@ io.on('connection', (socket) => {
     socket.on('username', (name) => {
         username = name;
     });
+
     socket.on('message', (encryptedMsg) => {
         // Decripta il messaggio ricevuto
         const decryptedMessage = decrypt(encryptedMsg.encryptedData, encryptedMsg.iv);
@@ -53,6 +51,6 @@ io.on('connection', (socket) => {
     });
 });
 
-http.listen(8080, () => {
-    console.log('listening on: 8080');
+http.listen(PORT, () => {
+    console.log(`listening on: ${PORT}`);
 });
